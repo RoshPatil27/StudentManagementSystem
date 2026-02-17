@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from SubjectDetails.SubjectController import create_subject, get_all_subjects, get_subject_by_id, update_subject, delete_subject
 
-Subject_routes = Blueprint("student_routes", __name__)
+Subject_routes = Blueprint("subject_routes", __name__)
 
 @Subject_routes.route("/create", methods=["POST"])
 def add_subject():
