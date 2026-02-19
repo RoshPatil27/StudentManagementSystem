@@ -81,17 +81,17 @@ const StudentTable = () => {
         <TabsMenu>
           <Title>Students List</Title>
           <TabsCards>
-            <TabCard>Dashboard</TabCard>
+            <TabCard onClick={() => {window.location.href = "/"}}>Dashboard</TabCard>
             <TabCard active>Students</TabCard>
-            <TabCard>Subjects</TabCard>
-            <TabCard>Results</TabCard>
-            <TabCard>Exams</TabCard>
+            <TabCard onClick={() => {window.location.href = "/subjects"}}>Subjects</TabCard>
+            <TabCard onClick={() => {window.location.href = "/results"}}>Results</TabCard>
+            <TabCard onClick={() => {window.location.href = "/exams"}}>Exams</TabCard>
           </TabsCards>
         </TabsMenu>
 
         <HeadingsTabs>
           <AddStudentButton onClick={handleAddNewStudent}>
-            + Add Student
+            + Add New Student
           </AddStudentButton>
         </HeadingsTabs>
 
