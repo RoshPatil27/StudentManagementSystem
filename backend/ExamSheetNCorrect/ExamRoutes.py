@@ -1,56 +1,89 @@
 from flask import Blueprint, request, jsonify
-from ExamSheetNCorrect.ExamController import (
-    create_exam,
-    get_all_exams,
-    update_exam,
-    delete_exam,
-    attend_exam, 
-    correct_exam,
-    get_subject_exams,
-    get_student_exams,
-)
+from ExamSheetNCorrect.ExamController import *
 
 Exam_Routes = Blueprint("Exam_Routes", __name__)
 
-@Exam_Routes.route("/create", methods=["POST"])
-def create_exam_route():
-    create_exam()
-    return jsonify({"message": "Exam created successfully."}), 201
 
-@Exam_Routes.route("/getall", methods=["GET"])
+# CREATE
+@Exam_Routes.route("/exams", methods=["POST"])
+def create_exam_route():
+    data = request.get_json()
+    exam = create_exam(data)
+    return jsonify(exam), 201
+
+
+# GET ALL
+@Exam_Routes.route("/exams", methods=["GET"])
 def get_all_exams_route():
     exams = get_all_exams()
-    return jsonify([exam.to_dict() for exam in exams]), 200
+    return jsonify(exams), 200
 
-@Exam_Routes.route("/attend", methods=["POST"])
+
+# GET SUBJECT EXAMS
+@Exam_Routes.route("/exams/<exam_id>", methods=["GET"])
+def get_exam_by_id_route(exam_id):
+    try:
+        exam = get_exam_by_id(exam_id)
+        if exam:
+            return jsonify(exam), 200
+        return jsonify({"message": "Exam not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+
+# GET EXAM BY SUBJECT ID
+@Exam_Routes.route("/exams/subject/<subject_id>", methods=["GET"])
+def get_exam_by_subject(subject_id):
+    result = get_exam_by_subject_controller(subject_id)
+
+    if not result:
+        return jsonify({"message": "Exam not found"}), 404
+
+    return jsonify(result), 200
+
+
+# GET STUDENT EXAMS
+@Exam_Routes.route("/exams/student/<student_id>", methods=["GET"])
+def get_student_exams_route(student_id):
+    exams = get_student_exams(student_id)
+    return jsonify(exams), 200
+
+
+# ATTEND EXAM
+@Exam_Routes.route("/exams/attend", methods=["POST"])
 def attend_exam_route():
-    attend_exam()
-    return jsonify({"message": "Exam submitted successfully."}), 200
-
-@Exam_Routes.route("/correct", methods=["POST"])
-def correct_exam_route():
-    correct_exam()
-    return jsonify({"message": "Exam corrected successfully."}), 200
-
-@Exam_Routes.route("/get/<id>", methods=["GET"])
-def get_subject_exams_route(id):
-    exams = get_subject_exams(id)
-    return jsonify([exam.to_dict() for exam in exams]), 200
-
-@Exam_Routes.route("/get/<id>", methods=["GET"])
-def get_student_exams_route(id):
-    exams = get_student_exams(id)
-    return jsonify([exam.to_dict() for exam in exams]), 200
-
-
-@Exam_Routes.route("/update/<id>", methods=["PUT"])
-def update_exam_route(id):
     data = request.get_json()
-    update_exam(id, **data)
-    return jsonify({"message": "Exam updated successfully."}), 200
+    result = attend_exam(data)
+    return jsonify(result), 201
 
-@Exam_Routes.route("/delete/<id>", methods=["DELETE"])
-def delete_exam_route(id):
-    delete_exam(id)
-    return jsonify({"message": "Exam deleted successfully."}), 200
 
+# CORRECT EXAM
+@Exam_Routes.route("/exams/correct", methods=["PUT"])
+def correct_exam_sheet():
+    return correct_exam_sheet_controller()
+
+
+# UPDATE
+@Exam_Routes.route("/exams/<exam_id>", methods=["PUT"])
+def update_exam_route(exam_id):
+    data = request.get_json()
+    updated = update_exam(exam_id, data)
+
+    if updated:
+        return jsonify({"message": "Exam updated"}), 200
+    return jsonify({"message": "Exam not found"}), 404
+
+
+# DELETE
+@Exam_Routes.route("/delete/<exam_id>", methods=["DELETE"])
+def delete_exam_route(exam_id):
+    try:
+        deleted = delete_exam(exam_id)
+
+        if deleted:
+            return jsonify({"message": "Exam deleted"}), 200
+
+        return jsonify({"message": "Exam not found"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
